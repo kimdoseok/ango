@@ -1,0 +1,48 @@
+version: "3.7"
+
+services:
+  mysqldb-service:
+    image: mysql:latest
+    container_name: mysql-service
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=kim7795004
+      - MYSQL_DATABASE=alumni
+    volumes:
+      - ./storage/mysql/:/var/lib/mysql 
+      
+  redis-service:
+    image: "redis:latest"
+    container_name: redis-service
+    ports:
+      - "6379:6379"
+
+  goapp-service:
+    container_name: goapp-service
+    restart: always
+    env_file: .env
+    depends_on:
+      - "mysqldb-service"  
+    build:
+      context: ./goapp
+      dockerfile: Dockerfile
+      args:
+        buildno: 1
+    volumes:
+      - "./log:/app/log"
+
+  ngfront-service:
+    container_name: ngapp-service
+    restart: always
+    depends_on:
+      - "goapp-service"  
+    ports:
+      - "80:80"
+    env_file: .env
+    build:
+      context: ./ngapp
+      dockerfile: Dockerfile
+      args:
+        buildno: 1
