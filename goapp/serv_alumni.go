@@ -54,7 +54,7 @@ func (s *AlumniService) List(w http.ResponseWriter, r *http.Request) {
 
 func CountAlumni(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	db, err := NewDatabase()
+	db, err := NewDatabase("mysql")
 	repo := NewAlumniRepository(db)
 	recs := repo.Count([]string{""})
 	err = json.NewEncoder(w).Encode(recs)

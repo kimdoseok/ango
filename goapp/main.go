@@ -23,17 +23,20 @@ type Item struct {
 var items []Item
 var nextID = 1
 
-func NewDatabase() (*gorm.DB, error) {
+func NewDatabase(usedb string) (*gorm.DB, error) {
 	var db *gorm.DB
 	var err error
-	if os.Getenv("DB_USE") == "mysql" {
+	if usedb == "mysql" {
 		dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 			os.Getenv("DB_MYSQL_USER"),
-			os.Getenv("DB_MYSQL_PASS"),
+			os.Getenv("DB_MYSQL_PASSWORD"),
 			os.Getenv("DB_MYSQL_HOST"),
 			os.Getenv("DB_MYSQL_PORT"),
 			os.Getenv("DB_MYSQL_DBAME"))
-		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		log.Println("DSN: ", dsn)
+		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Info), //.Silent
+		})
 	} else {
 		db, err = gorm.Open(sqlite.Open(os.Getenv("DB_SQLITE_ALUMNI")), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info), //.Silent
@@ -111,7 +114,7 @@ func getItem(w http.ResponseWriter, r *http.Request) {
 */
 
 func main() {
-	db, err := NewDatabase()
+	db, err := NewDatabase("mysql")
 	if err != nil {
 		log.Println("Gorm connection error: ", err)
 	}

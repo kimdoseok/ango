@@ -22,7 +22,3 @@ COPY --from=build-stage /app/dist/ngapp .
 EXPOSE 80
 CMD ["caddy", "run"]
 
-#for nginx
-#FROM nginx:alpine
-#COPY nginx.conf /etc/nginx/nginx.conf
-#COPY --from=build-stage /app/dist/ngfront /usr/share/nginx/html

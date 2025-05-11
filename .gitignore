@@ -3,6 +3,9 @@ node_modules/
 /docker/**
 /database/
 /log/
-
+/sandbox
+/storage/mysql
+/storage/logs/
 
 .DS_Store
+.env
