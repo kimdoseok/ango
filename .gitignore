@@ -5,6 +5,7 @@ node_modules/
 /log/
 /sandbox
 /storage/mysql
+/storage/pgdata
 /storage/logs/
 
 .DS_Store
