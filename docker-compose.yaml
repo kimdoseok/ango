@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: doseok
       POSTGRES_DB: alumni
     volumes:
-      - ./storage/pgdata:/var/lib/postgresql/data
+      - ./storage/pgsql:/var/lib/postgresql/data
       # copy the sql script to create tables
       #- ./postgres/wpos.sql:/docker-entrypoint-initdb.d/create_tables.sql 
   
@@ -28,7 +28,7 @@ services:
       MYSQL_USER: doseok
       MYSQL_PASSWORD: Kim7795004
     volumes:
-      - "./mysqldata:/var/lib/mysql"
+      - "./storage/mysql:/var/lib/mysql"
       
   goapp-service:
     container_name: goapp-service
