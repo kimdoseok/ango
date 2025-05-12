@@ -1,0 +1,66 @@
+services:
+  postgresdb-service:
+    image: postgres:alpine
+    container_name: postgresdb-service 
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: Kim7795004
+      POSTGRES_USER: doseok
+      POSTGRES_DB: alumni
+    volumes:
+      - ./storage/pgsql:/var/lib/postgresql/data
+      # copy the sql script to create tables
+      #- ./postgres/wpos.sql:/docker-entrypoint-initdb.d/create_tables.sql 
+  
+  mysqldb:
+    image: mysql:latest
+    container_name: mysqldb
+    restart: always
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: kim7795004
+      MYSQL_DATABASE: alumni
+      MYSQL_USER: doseok
+      MYSQL_PASSWORD: Kim7795004
+    volumes:
+      - "./storage/mysql:/var/lib/mysql"
+      
+  goapp-service:
+    container_name: goapp-service
+    restart: always
+    env_file: .env
+    depends_on:
+      - "mysqldb"  
+    build:
+      context: ./goapp
+      dockerfile: Dockerfile
+      args:
+        buildno: 1
+    volumes:
+      - "./storage/log:/app/log"
+
+  ngapp-service:
+    container_name: ngapp-service
+    restart: always
+    depends_on:
+      - "goapp-service"  
+    ports:
+      - "8080:8080"
+    env_file: .env
+    build:
+      context: ./ngapp
+      dockerfile: Dockerfile
+      args:
+        buildno: 1
+
+  redis-service:
+    image: "redis:latest"
+    container_name: redis-service
+    ports:
+      - "6379:6379"
+

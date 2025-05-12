@@ -1,0 +1,12 @@
+node_modules/
+/public/build/
+/docker/**
+/database/
+/log/
+/sandbox
+/storage/mysql
+/storage/pgsql
+/storage/logs/
+
+.DS_Store
+.env
