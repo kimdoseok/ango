@@ -15,7 +15,7 @@ services:
       ON_CREATE_DB: ${DB_MYSQL_DBNAME}
     volumes:
       - "./storage/mysql:/var/lib/mysql"
-      
+
   goapp-service:
     container_name: goapp-service
     restart: always
