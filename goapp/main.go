@@ -33,6 +33,13 @@ func NewDatabase(usedb string) (*gorm.DB, error) {
 			os.Getenv("DB_MYSQL_HOST"),
 			os.Getenv("DB_MYSQL_PORT"),
 			os.Getenv("DB_MYSQL_DBAME"))
+
+		fmt.Println(os.Getenv("DB_MYSQL_HOST"))
+		fmt.Println(os.Getenv("DB_MYSQL_USER"))
+		fmt.Println(os.Getenv("DB_MYSQL_PASSWORD"))
+		fmt.Println(os.Getenv("DB_MYSQL_DBNAME"))
+		fmt.Println(os.Getenv("DB_MYSQL_PORT"))
+
 		log.Println("DSN: ", dsn)
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info), //.Silent

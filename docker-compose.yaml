@@ -1,18 +1,4 @@
 services:
-  postgresdb-service:
-    image: postgres:alpine
-    container_name: postgresdb-service 
-    restart: always
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_PASSWORD: Kim7795004
-      POSTGRES_USER: doseok
-      POSTGRES_DB: alumni
-    volumes:
-      - ./storage/pgsql:/var/lib/postgresql/data
-      # copy the sql script to create tables
-      #- ./postgres/wpos.sql:/docker-entrypoint-initdb.d/create_tables.sql 
   
   mysqldb:
     image: mysql:latest
@@ -33,7 +19,8 @@ services:
   goapp-service:
     container_name: goapp-service
     restart: always
-    env_file: .env
+    env_file: 
+      - .env
     depends_on:
       - "mysqldb"  
     build:
@@ -51,7 +38,8 @@ services:
       - "goapp-service"  
     ports:
       - "8080:8080"
-    env_file: .env
+    env_file: 
+      - .env
     build:
       context: ./ngapp
       dockerfile: Dockerfile
