@@ -20,8 +20,6 @@ type Item struct {
 }
 
 // Slice to store items
-var items []Item
-var nextID = 1
 
 func NewDatabase(usedb string) (*gorm.DB, error) {
 	var db *gorm.DB
@@ -32,20 +30,12 @@ func NewDatabase(usedb string) (*gorm.DB, error) {
 			os.Getenv("DB_MYSQL_PASSWORD"),
 			os.Getenv("DB_MYSQL_HOST"),
 			os.Getenv("DB_MYSQL_PORT"),
-			os.Getenv("DB_MYSQL_DBAME"))
-
-		fmt.Println(os.Getenv("DB_MYSQL_HOST"))
-		fmt.Println(os.Getenv("DB_MYSQL_USER"))
-		fmt.Println(os.Getenv("DB_MYSQL_PASSWORD"))
-		fmt.Println(os.Getenv("DB_MYSQL_DBNAME"))
-		fmt.Println(os.Getenv("DB_MYSQL_PORT"))
-
-		log.Println("DSN: ", dsn)
+			os.Getenv("DB_MYSQL_DBNAME"))
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info), //.Silent
 		})
 	} else {
-		db, err = gorm.Open(sqlite.Open(os.Getenv("DB_SQLITE_ALUMNI")), &gorm.Config{
+		db, err = gorm.Open(sqlite.Open(os.Getenv("DB_SQLITE_FILES")), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info), //.Silent
 		})
 	}
@@ -121,7 +111,7 @@ func getItem(w http.ResponseWriter, r *http.Request) {
 */
 
 func main() {
-	db, err := NewDatabase("mysql")
+	db, err := NewDatabase(os.Getenv("DB_USED"))
 	if err != nil {
 		log.Println("Gorm connection error: ", err)
 	}

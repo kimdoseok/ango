@@ -1,5 +1,4 @@
 services:
-  
   mysqldb:
     image: mysql:latest
     container_name: mysqldb
@@ -9,13 +8,14 @@ services:
     expose:
       - "3306"
     environment:
-      MYSQL_ROOT_PASSWORD: kim7795004
-      MYSQL_DATABASE: alumni
-      MYSQL_USER: doseok
-      MYSQL_PASSWORD: Kim7795004
+      MYSQL_ROOT_PASSWORD: ${DB_MYSQL_HOST}
+      MYSQL_DATABASE: ${DB_MYSQL_DBNAME}
+      MYSQL0_USER: ${DB_MYSQL_USER}
+      MYSQL_PASSWORD: ${DB_MYSQL_PASSWORD}
+      ON_CREATE_DB: ${DB_MYSQL_DBNAME}
     volumes:
       - "./storage/mysql:/var/lib/mysql"
-      
+
   goapp-service:
     container_name: goapp-service
     restart: always
@@ -23,6 +23,8 @@ services:
       - .env
     depends_on:
       - "mysqldb"  
+    ports:
+      - "81:81"
     build:
       context: ./goapp
       dockerfile: Dockerfile
@@ -30,6 +32,7 @@ services:
         buildno: 1
     volumes:
       - "./storage/log:/app/log"
+      - "./storage/sqlite:/app/sqlite"
 
   ngapp-service:
     container_name: ngapp-service
@@ -37,9 +40,8 @@ services:
     depends_on:
       - "goapp-service"  
     ports:
-      - "8080:8080"
-    env_file: 
-      - .env
+      - "80:80"
+    env_file: .env
     build:
       context: ./ngapp
       dockerfile: Dockerfile
