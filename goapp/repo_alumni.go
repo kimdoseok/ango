@@ -8,31 +8,6 @@ import (
 )
 
 type (
-	Alumni struct {
-		ID             int    `json:"id"`
-		FirstName      string `json:"first_name"`
-		LastName       string `json:"last_name"`
-		Title          string `json:"title"`
-		Major          string `json:"major"`
-		GraduationYear int    `json:"graduation_year"`
-		Email          string `json:"email"`
-		Phone          string `json:"phone"`
-		Address        string `json:"address"`
-		City           string `json:"city"`
-		State          string `json:"state"`
-		Country        string `json:"country"`
-		ZipCode        string `json:"zip_code"`
-		Company        string `json:"company"`
-		Position       string `json:"position"`
-		WorkEmail      string `json:"work_email"`
-		WorkPhone      string `json:"work_phone"`
-		WorkAddress    string `json:"work_address"`
-		WorkCity       string `json:"work_city"`
-		WorkState      string `json:"work_state"`
-		WorkCountry    string `json:"work_country"`
-		WorkZipCode    string `json:"work_zip_code"`
-	}
-
 	AlumniRepository struct {
 		Db *gorm.DB
 	}
