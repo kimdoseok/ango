@@ -1,0 +1,55 @@
+services:
+  
+  mysqldb:
+    image: mysql:latest
+    container_name: mysqldb
+    restart: always
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: $(DB_MYSQL_PASSWORD)
+      MYSQL_DATABASE: $(DB_MYSQL_DBNAME)
+      MYSQL_USER: $(DB_MYSQL_USER)
+      MYSQL_PASSWORD: $(DB_MYSQL_PASSWORD)
+    volumes:
+      - "./storage/mysql:/var/lib/mysql"
+
+  goapp-service:
+    container_name: goapp-service
+    restart: always
+    env_file: .env
+    depends_on:
+      - "mysqldb"  
+    ports:
+      - "81:81"
+    build:
+      context: ./goapp
+      dockerfile: Dockerfile
+      args:
+        buildno: 1
+    volumes:
+      - "./storage/log:/app/log"
+
+  ngapp-service:
+    container_name: ngapp-service
+    restart: always
+    depends_on:
+      - "mysqldb"  
+      - "goapp-service"  
+    ports:
+      - "80:80"
+    env_file: .env
+    build:
+      context: ./ngapp
+      dockerfile: Dockerfile
+      args:
+        buildno: 1
+
+  redis-service:
+    image: "redis:latest"
+    container_name: redis-service
+    ports:
+      - "6379:6379"
+

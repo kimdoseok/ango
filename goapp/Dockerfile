@@ -7,5 +7,6 @@ WORKDIR /app
 COPY . /app
 
 RUN go build -o app .
+RUN sleep 15
 
 CMD ["./app"]
