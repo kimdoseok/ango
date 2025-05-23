@@ -41,7 +41,6 @@ func NewDatabase(usedb string) (*gorm.DB, error) {
 	}
 
 	if err != nil {
-		log.Println("Gorm connection error: ", err)
 		return nil, err
 	}
 	return db, nil
@@ -111,20 +110,12 @@ func getItem(w http.ResponseWriter, r *http.Request) {
 */
 
 func main() {
-	db, err := NewDatabase(os.Getenv("DB_USED"))
-	if err != nil {
-		log.Println("Gorm connection error: ", err)
-	}
-	log.Printf("%+v", db)
-
-	repo_alumni := NewAlumniRepository(db)
-	serv_alumni := NewAlumniService(repo_alumni)
 
 	// Define routes
-	http.HandleFunc("/alumni", serv_alumni.List)
-	http.HandleFunc("/alumni/:id", serv_alumni.Get)
+
+	Routes()
 
 	// Start the server
 	fmt.Println("Server listening on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":81", nil))
 }

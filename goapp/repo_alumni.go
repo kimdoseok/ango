@@ -8,6 +8,31 @@ import (
 )
 
 type (
+	Alumni struct {
+		ID             int    `gorm:"primary_key" json:"id"`
+		FirstName      string `gorm:"type:varchar(64); default:''; not null" json:"first_name"`
+		LastName       string `gorm:"type:varchar(64); default:''; not null" json:"last_name"`
+		Title          string `gorm:"type:varchar(64); default:''; not null" json:"title"`
+		Major          string `gorm:"type:varchar(32); default:''; not null" json:"major"`
+		GraduationYear int    `gorm:"type:integer; default:0; not null" json:"graduation_year"`
+		Email          string `gorm:"type:varchar(64); default:''; not null" json:"email"`
+		Phone          string `gorm:"type:varchar(32); default:''; not null" json:"phone"`
+		Address        string `gorm:"type:varchar(64); default:''; not null" json:"address"`
+		City           string `gorm:"type:varchar(64); default:''; not null" json:"city"`
+		State          string `gorm:"type:varchar(16); default:''; not null" json:"state"`
+		Country        string `gorm:"type:varchar(32); default:''; not null" json:"country"`
+		ZipCode        string `gorm:"type:varchar(16); default:''; not null" json:"zip_code"`
+		Company        string `gorm:"type:varchar(64); default:''; not null" json:"company"`
+		Position       string `gorm:"type:varchar(32); default:''; not null" json:"position"`
+		WorkEmail      string `gorm:"type:varchar(64); default:''; not null" json:"work_email"`
+		WorkPhone      string `gorm:"type:varchar(64); default:''; not null" json:"work_phone"`
+		WorkAddress    string `gorm:"type:varchar(64); default:''; not null" json:"work_address"`
+		WorkCity       string `gorm:"type:varchar(64); default:''; not null" json:"work_city"`
+		WorkState      string `gorm:"type:varchar(16); default:''; not null" json:"work_state"`
+		WorkCountry    string `gorm:"type:varchar(32); default:''; not null" json:"work_country"`
+		Memo           string `gorm:"type:text;" json:"work_zip_code"`
+	}
+
 	AlumniRepository struct {
 		Db *gorm.DB
 	}
@@ -27,7 +52,6 @@ func (Alumni) TableName() string {
 
 func NewAlumniRepository(db *gorm.DB) *AlumniRepository {
 	//fmt.Println("NewErrorCodeRepository")
-	db.AutoMigrate(Alumni{})
 
 	return &AlumniRepository{
 		Db: db,
