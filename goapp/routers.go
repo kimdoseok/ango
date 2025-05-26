@@ -13,13 +13,12 @@ var (
 	serv *AlumniService
 )
 
-func Routes() {
+func Routes(mux *http.ServeMux) {
 	db, err = NewDatabase("mysql")
 	if err != nil {
 		panic("Gorm connection error: " + err.Error())
 	}
 
-	mux := http.NewServeMux()
 	mux.Handle("/alumni", AlumniMux())
 }
 
@@ -30,8 +29,8 @@ func AlumniMux() http.Handler {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/count", http.HandlerFunc(serv.Count))
-	mux.HandleFunc("/", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/:filter", http.HandlerFunc(serv.List))
+	mux.HandleFunc("", http.HandlerFunc(serv.List))
+	mux.HandleFunc(":filter", http.HandlerFunc(serv.List))
 	mux.HandleFunc("/count/:filter", http.HandlerFunc(serv.List))
 	mux.HandleFunc("/get", http.HandlerFunc(serv.List))
 	mux.HandleFunc("/save", http.HandlerFunc(serv.List))

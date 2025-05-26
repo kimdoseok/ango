@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -22,8 +23,11 @@ func NewAlumniService(r *AlumniRepository) *AlumniService {
 	}
 }
 
+func (s *AlumniService) List(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", "Title", "Body")
+}
+
 func (s *AlumniService) Get(w http.ResponseWriter, r *http.Request) {
-	s.repo.Db.AutoMigrate(Alumni{})
 	w.Header().Set("Content-Type", "application/json")
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {
@@ -43,7 +47,7 @@ func (s *AlumniService) Get(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *AlumniService) List(w http.ResponseWriter, r *http.Request) {
+func (s *AlumniService) xList(w http.ResponseWriter, r *http.Request) {
 	s.repo.Db.AutoMigrate(Alumni{})
 	w.Header().Set("Content-Type", "application/json")
 	recs, err := s.repo.List([]string{""}, 0)

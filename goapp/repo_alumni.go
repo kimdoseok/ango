@@ -53,6 +53,7 @@ func (Alumni) TableName() string {
 func NewAlumniRepository(db *gorm.DB) *AlumniRepository {
 	//fmt.Println("NewErrorCodeRepository")
 
+	db.AutoMigrate(Alumni{})
 	return &AlumniRepository{
 		Db: db,
 	}

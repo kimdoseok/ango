@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm/logger"
 )
@@ -20,6 +21,35 @@ type Item struct {
 }
 
 // Slice to store items
+func SetupPgsql() {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s port=%s sslmode=disable TimeZone=America/New_York",
+		os.Getenv("DB_PGSQL_HOST"),
+		os.Getenv("DB_PGSQL_USER"),
+		os.Getenv("DB_PGSQL_PASSWORD"),
+		os.Getenv("DB_PGSQL_PORT"),
+	)
+	fmt.Println(dsn)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	result := map[string]interface{}{}
+	db.Table("pg_user").First(&result, "username = ?", os.Getenv("DB_PGSQL_USER"))
+	_, ok := result["usename"]
+	if !ok {
+		_ = db.Exec(fmt.Sprintf("CREATE USER IF NOT EXISTS %s WITH PASSWORD '%s';", os.Getenv("DB_PGSQL_USER"), os.Getenv("DB_PGSQL_PASSWORD")))
+		_ = db.Exec(fmt.Sprintf("GRANT ALL PRIVILEGES ON DATABASE %s TO %s;", os.Getenv("DB_PGSQL_DBNAME"), os.Getenv("DB_PGSQL_USER")))
+		_ = db.Exec(fmt.Sprintf("ALTER USER %s WITH SUPERUSER;", os.Getenv("DB_PGSQL_USER")))
+		_ = db.Exec(fmt.Sprintf("ALTER USER %s WITH PASSWORD '%s';", os.Getenv("DB_PGSQL_USER"), os.Getenv("DB_PGSQL_PASSWORD")))
+	}
+	_ = db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s; ", os.Getenv("DB_PGSQL_DBNAME")))
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Println(err)
+	}
+	sqlDB.Close()
+}
 
 func NewDatabase(usedb string) (*gorm.DB, error) {
 	var db *gorm.DB
@@ -34,6 +64,19 @@ func NewDatabase(usedb string) (*gorm.DB, error) {
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info), //.Silent
 		})
+	} else if usedb == "pgsql" {
+		SetupPgsql()
+		dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=America/New_York",
+			os.Getenv("DB_PGSQL_HOST"),
+			os.Getenv("DB_PGSQL_USER"),
+			os.Getenv("DB_PGSQL_PASSWORD"),
+			os.Getenv("DB_PGSQL_DBNAME"),
+			os.Getenv("DB_PGSQL_PORT"),
+		)
+
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Info), //.Silent
+		})
 	} else {
 		db, err = gorm.Open(sqlite.Open(os.Getenv("DB_SQLITE_FILES")), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info), //.Silent
@@ -46,74 +89,26 @@ func NewDatabase(usedb string) (*gorm.DB, error) {
 	return db, nil
 }
 
-/*
-// Handlers
-func getItems(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	db,err :=NewDatabase()
-	if err != nil {
-		http.Error(w, "Database connection error", http.StatusInternalServerError)
-		return
-	}
-	json.NewEncoder(w).Encode(items)
-}
-
-func createItem(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var newItem Item
-	err := json.NewDecoder(r.Body).Decode(&newItem)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	newItem.ID = nextID
-	nextID++
-	items = append(items, newItem)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newItem)
-}
-
-func getItem(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	idStr := r.URL.Query().Get("id")
-	if idStr == "" {
-		http.Error(w, "ID is required", http.StatusBadRequest)
-		return
-	}
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		http.Error(w, "Invalid ID", http.StatusBadRequest)
-		return
-	}
-
-	for _, item := range items {
-		if item.ID == id {
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(item)
-			return
-		}
-	}
-
-	http.Error(w, "Item not found", http.StatusNotFound)
-}
-*/
-
 func main() {
+	db, err = NewDatabase(os.Getenv("DB_USED"))
+	if err != nil {
+		log.Println(err)
+	}
+	//db.AutoMigrate(Alumni{})
+	repo_alumni := NewAlumniRepository(db)
+	serv_alumni := NewAlumniService(repo_alumni)
+
+	http.HandleFunc("/", http.HandlerFunc(serv_alumni.List))
+	http.HandleFunc("/count", http.HandlerFunc(serv_alumni.Count))
+	http.HandleFunc("/:filter", http.HandlerFunc(serv_alumni.List))
+	http.HandleFunc("/count/:filter", http.HandlerFunc(serv_alumni.List))
+	http.HandleFunc("/get", http.HandlerFunc(serv_alumni.List))
+	http.HandleFunc("/save", http.HandlerFunc(serv_alumni.List))
+	http.HandleFunc("/get/:id", http.HandlerFunc(serv_alumni.List))
+	http.HandleFunc("/delete/:id", http.HandlerFunc(serv_alumni.List))
 
 	// Define routes
-
-	Routes()
+	//Routes()
 
 	// Start the server
 	fmt.Println("Server listening on port 8080...")
