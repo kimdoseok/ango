@@ -1,0 +1,73 @@
+services:
+  redisdb:
+    image: "redis:latest"
+    container_name: redis-service
+    ports:
+      - "6379:6379"
+
+  mysqldb:
+    image: mysql:latest
+    container_name: mysqldb
+    restart: always
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_MYSQL_HOST}
+      MYSQL_DATABASE: ${DB_MYSQL_DBNAME}
+      MYSQL0_USER: ${DB_MYSQL_USER}
+      MYSQL_PASSWORD: ${DB_MYSQL_PASSWORD}
+      ON_CREATE_DB: ${DB_MYSQL_DBNAME}
+    volumes:
+      - "./storage/mysql:/var/lib/mysql"
+
+  postgresdb:
+    image: postgres:alpine
+    container_name: postgres-service 
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: ${DB_PGSQL_PASSWORD}
+    volumes:
+      - ./storage/postgres:/var/lib/postgresql/data
+      # copy the sql script to create tables
+      - ./postgres/init_db.sh:/docker-entrypoint-initdb.d/init_db.sh
+
+  goapp-service:
+    container_name: goapp-service
+    restart: always
+    env_file: 
+      - .env
+    depends_on:
+      - "redisdb"
+      - "postgresdb"  
+    ports:
+      - "81:81"
+    build:
+      context: ./goapp
+      dockerfile: Dockerfile
+      args:
+        buildno: 1
+    volumes:
+      - "./storage/log:/app/log"
+      #- "./storage/sqlite:/app/sqlite"
+
+  ngapp-service:
+    container_name: ngapp-service
+    restart: always
+    depends_on:
+      - "redisdb"
+      - "postgresdb"  
+      - "goapp-service"  
+    ports:
+      - "80:80"
+    env_file: .env
+    build:
+      context: ./ngapp
+      dockerfile: Dockerfile
+      args:
+        buildno: 1
+
+
