@@ -8,26 +8,22 @@ import (
 )
 
 type (
-	AlumniService struct {
-		repo *AlumniRepository
+	AlumnusService struct {
+		repo *AlumnusRepository
 	}
 )
 
-var (
-	sitesallowed = []string{"", "localhost"}
-)
-
-func NewAlumniService(r *AlumniRepository) *AlumniService {
-	return &AlumniService{
+func NewAlumnusService(r *AlumnusRepository) *AlumnusService {
+	return &AlumnusService{
 		repo: r,
 	}
 }
 
-func (s *AlumniService) List(w http.ResponseWriter, r *http.Request) {
+func (s *AlumnusService) List(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", "Title", "Body")
 }
 
-func (s *AlumniService) Get(w http.ResponseWriter, r *http.Request) {
+func (s *AlumnusService) Get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {
@@ -47,8 +43,8 @@ func (s *AlumniService) Get(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *AlumniService) xList(w http.ResponseWriter, r *http.Request) {
-	s.repo.Db.AutoMigrate(Alumni{})
+func (s *AlumnusService) xList(w http.ResponseWriter, r *http.Request) {
+	s.repo.Db.AutoMigrate(Alumnus{})
 	w.Header().Set("Content-Type", "application/json")
 	recs, err := s.repo.List([]string{""}, 0)
 	err = json.NewEncoder(w).Encode(recs)
@@ -58,10 +54,10 @@ func (s *AlumniService) xList(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *AlumniService) Count(w http.ResponseWriter, r *http.Request) {
+func (s *AlumnusService) Count(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	db, err := NewDatabase("mysql")
-	repo := NewAlumniRepository(db)
+	repo := NewAlumnusRepository(db)
 	recs := repo.Count([]string{""})
 	err = json.NewEncoder(w).Encode(recs)
 	if err != nil {
@@ -70,8 +66,8 @@ func (s *AlumniService) Count(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *AlumniService) Delete(w http.ResponseWriter, r *http.Request) {
-	s.repo.Db.AutoMigrate(Alumni{})
+func (s *AlumnusService) Delete(w http.ResponseWriter, r *http.Request) {
+	s.repo.Db.AutoMigrate(Alumnus{})
 	w.Header().Set("Content-Type", "application/json")
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {

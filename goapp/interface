@@ -1,9 +1,11 @@
 package main
 
-type Repository interface {
-	Populate()
-	Get(code string) (*ErrorCode, error)
-	List(filter string) ([]ErrorCode, error)
-	Save(param *ErrorCode) error
-	Delete(code string) error
-}
+type (
+	Repository interface {
+		Populate()
+		Get(code string) (*ErrorCode, error)
+		List(filter string) ([]ErrorCode, error)
+		Save(param *ErrorCode) error
+		Delete(code string) error
+	}
+)

@@ -21,36 +21,6 @@ type Item struct {
 }
 
 // Slice to store items
-func SetupPgsql() {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s port=%s sslmode=disable TimeZone=America/New_York",
-		os.Getenv("DB_PGSQL_HOST"),
-		os.Getenv("DB_PGSQL_USER"),
-		os.Getenv("DB_PGSQL_PASSWORD"),
-		os.Getenv("DB_PGSQL_PORT"),
-	)
-	fmt.Println(dsn)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	result := map[string]interface{}{}
-	db.Table("pg_user").First(&result, "username = ?", os.Getenv("DB_PGSQL_USER"))
-	_, ok := result["usename"]
-	if !ok {
-		_ = db.Exec(fmt.Sprintf("CREATE USER IF NOT EXISTS %s WITH PASSWORD '%s';", os.Getenv("DB_PGSQL_USER"), os.Getenv("DB_PGSQL_PASSWORD")))
-		_ = db.Exec(fmt.Sprintf("GRANT ALL PRIVILEGES ON DATABASE %s TO %s;", os.Getenv("DB_PGSQL_DBNAME"), os.Getenv("DB_PGSQL_USER")))
-		_ = db.Exec(fmt.Sprintf("ALTER USER %s WITH SUPERUSER;", os.Getenv("DB_PGSQL_USER")))
-		_ = db.Exec(fmt.Sprintf("ALTER USER %s WITH PASSWORD '%s';", os.Getenv("DB_PGSQL_USER"), os.Getenv("DB_PGSQL_PASSWORD")))
-	}
-	_ = db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s; ", os.Getenv("DB_PGSQL_DBNAME")))
-	sqlDB, err := db.DB()
-	if err != nil {
-		log.Println(err)
-	}
-	sqlDB.Close()
-}
-
 func NewDatabase(usedb string) (*gorm.DB, error) {
 	var db *gorm.DB
 	var err error
@@ -65,7 +35,6 @@ func NewDatabase(usedb string) (*gorm.DB, error) {
 			Logger: logger.Default.LogMode(logger.Info), //.Silent
 		})
 	} else if usedb == "pgsql" {
-		SetupPgsql()
 		dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=America/New_York",
 			os.Getenv("DB_PGSQL_HOST"),
 			os.Getenv("DB_PGSQL_USER"),
@@ -90,25 +59,10 @@ func NewDatabase(usedb string) (*gorm.DB, error) {
 }
 
 func main() {
-	db, err = NewDatabase(os.Getenv("DB_USED"))
-	if err != nil {
-		log.Println(err)
-	}
-	//db.AutoMigrate(Alumni{})
-	repo_alumni := NewAlumniRepository(db)
-	serv_alumni := NewAlumniService(repo_alumni)
-
-	http.HandleFunc("/", http.HandlerFunc(serv_alumni.List))
-	http.HandleFunc("/count", http.HandlerFunc(serv_alumni.Count))
-	http.HandleFunc("/:filter", http.HandlerFunc(serv_alumni.List))
-	http.HandleFunc("/count/:filter", http.HandlerFunc(serv_alumni.List))
-	http.HandleFunc("/get", http.HandlerFunc(serv_alumni.List))
-	http.HandleFunc("/save", http.HandlerFunc(serv_alumni.List))
-	http.HandleFunc("/get/:id", http.HandlerFunc(serv_alumni.List))
-	http.HandleFunc("/delete/:id", http.HandlerFunc(serv_alumni.List))
 
 	// Define routes
-	//Routes()
+	mux := http.NewServeMux()
+	Routes(mux)
 
 	// Start the server
 	fmt.Println("Server listening on port 8080...")
