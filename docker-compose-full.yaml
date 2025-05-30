@@ -19,6 +19,7 @@ services:
       MYSQL0_USER: ${DB_MYSQL_USER}
       MYSQL_PASSWORD: ${DB_MYSQL_PASSWORD}
       ON_CREATE_DB: ${DB_MYSQL_DBNAME}
+      DB_USED: ${DB_USED}
     volumes:
       - "./storage/mysql:/var/lib/mysql"
 
