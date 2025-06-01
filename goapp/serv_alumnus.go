@@ -43,7 +43,7 @@ func (s *AlumnusService) Get(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *AlumnusService) xList(w http.ResponseWriter, r *http.Request) {
+func (s *AlumnusService) XList(w http.ResponseWriter, r *http.Request) {
 	s.repo.Db.AutoMigrate(Alumnus{})
 	w.Header().Set("Content-Type", "application/json")
 	recs, err := s.repo.List([]string{""}, 0)

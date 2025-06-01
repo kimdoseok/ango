@@ -12,43 +12,48 @@ var (
 )
 
 func Routes(mux *http.ServeMux) {
-	mux.Handle("/alumni", AlumnusMux(mux))
-}
-
-func AlumnusMux(mux *http.ServeMux) http.Handler {
 	db, err := NewDatabase(os.Getenv("DB_USED"))
 	if err != nil {
 		panic("Could not connect to the database: " + err.Error())
 	}
+
+	//mux.Handle("/alumnus", AlumnusMux(mux))
+	//mux.Handle("/group", GroupMux(mux))
+	AlumnusMux(mux, db)
+	GroupMux(mux, db)
+}
+
+func AlumnusMux(mux *http.ServeMux, db *gorm.DB) {
+	submux := http.NewServeMux()
+
 	repo := NewAlumnusRepository(db)
 	serv := NewAlumnusService(repo)
 
-	mux.HandleFunc("/count", http.HandlerFunc(serv.Count))
-	mux.HandleFunc("", http.HandlerFunc(serv.List))
-	mux.HandleFunc(":filter", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/count/:filter", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/get", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/save", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/get/:id", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/delete/:id", http.HandlerFunc(serv.List))
-	return http.StripPrefix("/alumni", mux)
+	submux.HandleFunc("GET /count", http.HandlerFunc(serv.Count))
+	submux.HandleFunc("GET /", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /:filter", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /count/:filter", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /get", http.HandlerFunc(serv.List))
+	submux.HandleFunc("POST /save", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /get/:id", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /delete/:id", http.HandlerFunc(serv.List))
+	mux.Handle("/alumnus/", http.StripPrefix("/alumnus", submux))
+
 }
 
-func GroupMux(mux *http.ServeMux) http.Handler {
-	db, err := NewDatabase(os.Getenv("DB_USED"))
-	if err != nil {
-		panic("Could not connect to the database: " + err.Error())
-	}
+func GroupMux(mux *http.ServeMux, db *gorm.DB) {
+	submux := http.NewServeMux()
+
 	repo := NewGroupRepository(db)
 	serv := NewGroupService(repo)
 
-	mux.HandleFunc("/count", http.HandlerFunc(serv.Count))
-	mux.HandleFunc("", http.HandlerFunc(serv.List))
-	mux.HandleFunc(":filter", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/count/:filter", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/get", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/save", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/get/:id", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/delete/:id", http.HandlerFunc(serv.List))
-	return http.StripPrefix("/alumni", mux)
+	submux.HandleFunc("GET /count", http.HandlerFunc(serv.Count))
+	submux.HandleFunc("GET /", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /:filter", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /count/:filter", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /get", http.HandlerFunc(serv.List))
+	submux.HandleFunc("POST /save", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /get/:id", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /delete/:id", http.HandlerFunc(serv.List))
+	mux.Handle("/group/", http.StripPrefix("/group", submux))
 }

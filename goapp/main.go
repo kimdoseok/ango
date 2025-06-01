@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
@@ -42,10 +41,11 @@ func NewDatabase(usedb string) (*gorm.DB, error) {
 			os.Getenv("DB_PGSQL_DBNAME"),
 			os.Getenv("DB_PGSQL_PORT"),
 		)
-
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info), //.Silent
 		})
+		db.AutoMigrate(&Alumnus{})
+		db.AutoMigrate(&Group{})
 	} else {
 		db, err = gorm.Open(sqlite.Open(os.Getenv("DB_SQLITE_FILES")), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info), //.Silent
@@ -64,7 +64,14 @@ func main() {
 	mux := http.NewServeMux()
 	Routes(mux)
 
+
 	// Start the server
-	fmt.Println("Server listening on port 8080...")
-	log.Fatal(http.ListenAndServe(":81", nil))
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: mux,
+	}
+
+	fmt.Println("Server listening on port 81...")
+	server.ListenAndServe()
+
 }
