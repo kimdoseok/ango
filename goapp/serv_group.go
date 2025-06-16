@@ -14,6 +14,7 @@ type (
 )
 
 func NewGroupService(r *GroupRepository) *GroupService {
+	s.repo.Db.AutoMigrate(Group{})
 	return &GroupService{
 		repo: r,
 	}
@@ -43,8 +44,7 @@ func (s *GroupService) Get(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *GroupService) xList(w http.ResponseWriter, r *http.Request) {
-	s.repo.Db.AutoMigrate(Group{})
+func (s *GroupService) XList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	recs, err := s.repo.List([]string{""}, 0)
 	err = json.NewEncoder(w).Encode(recs)

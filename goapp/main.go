@@ -61,14 +61,40 @@ func NewDatabase(usedb string) (*gorm.DB, error) {
 func main() {
 
 	// Define routes
-	mux := http.NewServeMux()
-	Routes(mux)
+	submux := http.NewServeMux()
+	//Routes(mux)
+	db, err := NewDatabase(os.Getenv("DB_USED"))
+	if err != nil {
+		panic("Could not connect to the database: " + err.Error())
+	}
 
+	repo_alumnus := NewAlumnusRepository(db)
+	serv_alumnus := NewAlumnusService(repo_alumnus)
+	submux.HandleFunc("GET /alumnus/count", http.HandlerFunc(serv_alumnus.Count))
+	submux.HandleFunc("GET /alumnus/", http.HandlerFunc(serv_alumnus.List))
+	submux.HandleFunc("GET /alumnus/{filter}", http.HandlerFunc(serv_alumnus.List))
+	submux.HandleFunc("GET /alumnus/count/{filter}", http.HandlerFunc(serv_alumnus.List))
+	submux.HandleFunc("GET /alumnus/get", http.HandlerFunc(serv_alumnus.List))
+	submux.HandleFunc("POST /alumnus/save", http.HandlerFunc(serv_alumnus.List))
+	submux.HandleFunc("GET /alumnus/het/{id}", http.HandlerFunc(serv_alumnus.List))
+	submux.HandleFunc("POST /alumnus/import", http.HandlerFunc(serv_alumnus.Import))
+	submux.HandleFunc("GET /alumnus/export", http.HandlerFunc(serv_alumnus.List))
+
+	repo_group := NewGroupRepository(db)
+	serv_group := NewGroupService(repo_group)
+	submux.HandleFunc("GET /group/count", http.HandlerFunc(serv_group.Count))
+	submux.HandleFunc("GET /group", http.HandlerFunc(serv_group.List))
+	submux.HandleFunc("GET /group/{filter}", http.HandlerFunc(serv_group.List))
+	submux.HandleFunc("GET /group/count/{filter}", http.HandlerFunc(serv_group.List))
+	submux.HandleFunc("GET /group/get", http.HandlerFunc(serv_group.List))
+	submux.HandleFunc("POST /group/save", http.HandlerFunc(serv_group.List))
+	submux.HandleFunc("GET /group/get/{id}", http.HandlerFunc(serv_group.List))
+	submux.HandleFunc("GET /group/delete/{id}", http.HandlerFunc(serv_group.List))
 
 	// Start the server
 	server := &http.Server{
-		Addr:    ":8080",
-		Handler: mux,
+		Addr:    ":81",
+		Handler: submux,
 	}
 
 	fmt.Println("Server listening on port 81...")
