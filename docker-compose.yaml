@@ -1,61 +1,36 @@
 services:
-  redisdb:
-    image: "redis:latest"
-    container_name: redis-service
-    ports:
-      - "6379:6379"
   
   postgresdb:
     image: postgres:alpine
-    container_name: postgres-service 
+    container_name: postgresdb 
     restart: always
     ports:
       - "5432:5432"
     environment:
+      POSTGRES_USER: ${DB_PGSQL_USER}
       POSTGRES_PASSWORD: ${DB_PGSQL_PASSWORD}
+      POSTGRES_DB: ${DB_PGSQL_DBNAME}
       DB_PGSQL_HOST: ${DB_PGSQL_HOST}
       DB_PGSQL_USER: ${DB_PGSQL_USER}
       DB_PGSQL_PASSWORD: ${DB_PGSQL_PASSWORD}
       DB_PGSQL_DBNAME: ${DB_PGSQL_DBNAME}
       DB_PGSQL_PORT: ${DB_PGSQL_PORT}
       DB_USED: ${DB_USED}
-    volumes:
+    volumes: 
       - ./storage/postgres:/var/lib/postgresql/data
       # copy the sql script to create tables
       - ./postgres/entrypoint:/docker-entrypoint-initdb.d
 
-  goapp-service:
-    container_name: goapp-service
-    restart: always
-    env_file: 
-      - .env
-    depends_on:
-      - "redisdb"
-      - "postgresdb"  
+  pgadmin:
+    image: dpage/pgadmin4:latest # Use the official pgAdmin 4 image
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${DB_PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${DB_PGADMIN_PASSWORD}
     ports:
-      - "81:81"
-    build:
-      context: ./goapp
-      dockerfile: Dockerfile
-      args:
-        buildno: 1
+      - "8080:80" # Expose pgAdmin on port 8080 of the host
+    depends_on:
+      - postgresdb # Ensure PostgreSQL starts before pgAdmin
     volumes:
-      - "./storage/log:/app/log"
-      #- "./storage/sqlite:/app/sqlite"
-
-  ngapp-service:
-    container_name: ngapp-service
-    restart: always
-    depends_on:
-      - "redisdb"
-      - "postgresdb"  
-      - "goapp-service"  
-    ports:
-      - "80:80"
-    env_file: .env
-    build:
-      context: ./ngapp
-      dockerfile: Dockerfile
-      args:
-        buildno: 1
+      - ./storage/pgadmin:/var/lib/pgadmin
 

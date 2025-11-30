@@ -25,7 +25,7 @@ services:
 
   postgresdb:
     image: postgres:alpine
-    container_name: postgres-service 
+    container_name: postgresdb 
     restart: always
     ports:
       - "5432:5432"
@@ -37,10 +37,24 @@ services:
       DB_PGSQL_DBNAME: ${DB_PGSQL_DBNAME}
       DB_PGSQL_PORT: ${DB_PGSQL_PORT}
       DB_USED: ${DB_USED}
+    command: chmod +x /docker-entrypoint-initdb.d/init_db.sh
     volumes:
       - ./storage/postgres:/var/lib/postgresql/data
       # copy the sql script to create tables
       - ./postgres/entrypoint:/docker-entrypoint-initdb.d
+
+  pgadmin:
+    image: dpage/pgadmin4:latest # Use the official pgAdmin 4 image
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${DB_PGSQL_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${DB_PGSQL_DBNAME}
+    ports:
+      - "8080:80" # Expose pgAdmin on port 8080 of the host
+    depends_on:
+      - postgresdb # Ensure PostgreSQL starts before pgAdmin
+    volumes:
+      - ./storage/pgadmin:/var/lib/pgadmin
 
   goapp-service:
     container_name: goapp-service
@@ -76,3 +90,4 @@ services:
       dockerfile: Dockerfile
       args:
         buildno: 1
+

@@ -11,32 +11,32 @@ import (
 
 type (
 	Alumnus struct {
-		ID             int        `gorm:"primary_key" json:"id"`
-		Alumnuss       []*Alumnus `gorm:"many2many:alumni_Alumnuss;"`
-		Name           string     `gorm:"type:varchar(16); default:''; not null" json:"name"`
-		FirstName      string     `gorm:"type:varchar(64); default:''; not null" json:"first_name"`
-		LastName       string     `gorm:"type:varchar(64); default:''; not null" json:"last_name"`
-		Title          string     `gorm:"type:varchar(64); default:''; not null" json:"title"`
-		Major          string     `gorm:"type:varchar(32); default:''; not null" json:"major"`
-		AdmissionYear  int        `gorm:"type:integer; default:0; not null" json:"admission_year"`
-		Email          string     `gorm:"type:varchar(64); default:''; not null" json:"email"`
-		Phone          string     `gorm:"type:varchar(32); default:''; not null" json:"phone"`
-		Address        string     `gorm:"type:varchar(64); default:''; not null" json:"address"`
-		City           string     `gorm:"type:varchar(64); default:''; not null" json:"city"`
-		State          string     `gorm:"type:varchar(16); default:''; not null" json:"state"`
-		Country        string     `gorm:"type:varchar(32); default:''; not null" json:"country"`
-		ZipCode        string     `gorm:"type:varchar(16); default:''; not null" json:"zip_code"`
-		Company        string     `gorm:"type:varchar(64); default:''; not null" json:"company"`
-		Position       string     `gorm:"tApe:varchar(32); default:''; not null" json:"position"`
-		WorkEmail      string     `gorm:"type:varchar(64); default:''; not null" json:"work_email"`
-		WorkPhone      string     `gorm:"type:varchar(64); default:''; not null" json:"work_phone"`
-		WorkAddress    string     `gorm:"type:varchar(64); default:''; not null" json:"work_address"`
-		WorkCity       string     `gorm:"type:varchar(64); default:''; not null" json:"work_city"`
-		WorkState      string     `gorm:"type:varchar(16); default:''; not null" json:"work_state"`
-		WorkCountry    string     `gorm:"type:varchar(32); default:''; not null" json:"work_country"`
-		Memo           string     `gorm:"type:text;" json:"memo"`
+		ID            int        `gorm:"primary_key" json:"id"`
+		Alumnuss      []*Alumnus `gorm:"many2many:alumni_Alumnuss;"`
+		Name          string     `gorm:"type:varchar(16); default:''; not null" json:"name"`
+		FirstName     string     `gorm:"type:varchar(64); default:''; not null" json:"first_name"`
+		LastName      string     `gorm:"type:varchar(64); default:''; not null" json:"last_name"`
+		Title         string     `gorm:"type:varchar(64); default:''; not null" json:"title"`
+		Major         string     `gorm:"type:varchar(32); default:''; not null" json:"major"`
+		AdmissionYear int        `gorm:"type:integer; default:0; not null" json:"admission_year"`
+		Email         string     `gorm:"type:varchar(64); default:''; not null" json:"email"`
+		Phone         string     `gorm:"type:varchar(32); default:''; not null" json:"phone"`
+		Address       string     `gorm:"type:varchar(64); default:''; not null" json:"address"`
+		City          string     `gorm:"type:varchar(64); default:''; not null" json:"city"`
+		State         string     `gorm:"type:varchar(16); default:''; not null" json:"state"`
+		Country       string     `gorm:"type:varchar(32); default:''; not null" json:"country"`
+		ZipCode       string     `gorm:"type:varchar(16); default:''; not null" json:"zip_code"`
+		Company       string     `gorm:"type:varchar(64); default:''; not null" json:"company"`
+		Position      string     `gorm:"tApe:varchar(32); default:''; not null" json:"position"`
+		WorkEmail     string     `gorm:"type:varchar(64); default:''; not null" json:"work_email"`
+		WorkPhone     string     `gorm:"type:varchar(64); default:''; not null" json:"work_phone"`
+		WorkAddress   string     `gorm:"type:varchar(64); default:''; not null" json:"work_address"`
+		WorkCity      string     `gorm:"type:varchar(64); default:''; not null" json:"work_city"`
+		WorkState     string     `gorm:"type:varchar(16); default:''; not null" json:"work_state"`
+		WorkCountry   string     `gorm:"type:varchar(32); default:''; not null" json:"work_country"`
+		Memo          string     `gorm:"type:text;" json:"memo"`
 	}
-이름	영문이름	First Name	Last Name	Title	입학년도	전공	휴대폰	Email	Address	City	State	Zip	비 고	수정사항  기록장				직장명	직장전화번호 	직장주소	직장city	직장state	직장zip	Remark																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							
+	//이름	영문이름	First Name	Last Name	Title	입학년도	전공	휴대폰	Email	Address	City	State	Zip	비 고	수정사항  기록장				직장명	직장전화번호 	직장주소	직장city	직장state	직장zip	Remark
 
 	AlumnusRepository struct {
 		Db *gorm.DB
@@ -47,7 +47,33 @@ const (
 	AlumnusLimit int    = 100
 	SheetAlumni  string = "Alumni"
 	SheetGroups  string = "Groups"
+
+	fieldmap [][]string = [][]string{
+				[]string{"ID","s","A"},
+				[]string{"FirstName","s","B"},
+				[]string{"LastName","s","C"},
+				[]string{"Title","s","D"},
+				[]string{"Major","s","E"},
+				[]string{"GraduationYear","i","F"},
+				[]string{"Email","s","G"},
+				[]string{"Phone","s","H"},
+				[]string{"Address","s","I"},
+				[]string{"City","s","J"},
+				[]string{"State","s","K"},
+				[]string{"Country","s","L"},
+				[]string{"ZipCode","s","M"},
+				[]string{"Company","s","N"},
+				[]string{"Position","s","O"},
+				[]string{"WorkEmail","s","P"},
+				[]string{"WorkPhone","s","Q"},
+				[]string{"WorkAddress","s","R"},
+				[]string{"WorkCity","s","S"},
+				[]string{"WorkState","s","T"},
+				[]string{"WorkCountry","s","U"},
+				[]string{"Memo","s","V"},
+			}
 )
+
 
 var (
 	AlumnusOffset int = 0
@@ -130,95 +156,3 @@ func (r *AlumnusRepository) Delete(ID int32) error {
 	return nil
 }
 
-func (r *AlumnusRepository) Import(xls *excelize.File) error {
-	// Implement import logic here
-
-	rows, err := f.GetRows(SheetAlumni)
-	if err != nil {
-		fmt.Println(err)
-		return f
-	}
-
-	for i, row := range rows {
-		lenrow := len(row)
-		fmt.Println(row.Columns())
-
-		if i < 1 {
-			continue
-		}
-
-		if lenrow < 3 {
-			continue
-		}
-		if len(row[1]) < 1 {
-			continue
-		}
-		j := 1
-		a := &Alumnus{}
-		cellname, err := excelize.CoordinatesToCellName(j, i+1)
-		if err != nil {
-			log.Println(err)
-		}
-		cellvalue, err := xls.GetCellValue(SheetAlumni, cellname)
-		if err != nil {
-			log.Println(err)
-		}
-
-
-		a.ID =              int        `gorm:"primary_key" json:"id"`
-		
-		Alumnuss       []*Alumnus `gorm:"many2many:alumni_Alumnuss;"`
-		FirstName      string     `gorm:"type:varchar(64); default:''; not null" json:"first_name"`
-		LastName       string     `gorm:"type:varchar(64); default:''; not null" json:"last_name"`
-		Title          string     `gorm:"type:varchar(64); default:''; not null" json:"title"`
-		Major          string     `gorm:"type:varchar(32); default:''; not null" json:"major"`
-		GraduationYear int        `gorm:"type:integer; default:0; not null" json:"graduation_year"`
-		Email          string     `gorm:"type:varchar(64); default:''; not null" json:"email"`
-		Phone          string     `gorm:"type:varchar(32); default:''; not null" json:"phone"`
-		Address        string     `gorm:"type:varchar(64); default:''; not null" json:"address"`
-		City           string     `gorm:"type:varchar(64); default:''; not null" json:"city"`
-		State          string     `gorm:"type:varchar(16); default:''; not null" json:"state"`
-		Country        string     `gorm:"type:varchar(32); default:''; not null" json:"country"`
-		ZipCode        string     `gorm:"type:varchar(16); default:''; not null" json:"zip_code"`
-		Company        string     `gorm:"type:varchar(64); default:''; not null" json:"company"`
-		Position       string     `gorm:"tApe:varchar(32); default:''; not null" json:"position"`
-		WorkEmail      string     `gorm:"type:varchar(64); default:''; not null" json:"work_email"`
-		WorkPhone      string     `gorm:"type:varchar(64); default:''; not null" json:"work_phone"`
-		WorkAddress    string     `gorm:"type:varchar(64); default:''; not null" json:"work_address"`
-		WorkCity       string     `gorm:"type:varchar(64); default:''; not null" json:"work_city"`
-		WorkState      string     `gorm:"type:varchar(16); default:''; not null" json:"work_state"`
-		WorkCountry    string     `gorm:"type:varchar(32); default:''; not null" json:"work_country"`
-		Memo           string     `gorm:"type:text;" json:"memo"`
-
-
-		first, last, title, err := SplitName(row[1])
-		if err != nil {
-			continue
-		}
-		if i < 2 {
-			continue
-		}
-		cellname, err := excelize.JoinCellName("C", i+1)
-		if err != nil {
-			continue
-		}
-		f.SetCellValue(sheetname, cellname, first)
-		cellname, err = excelize.JoinCellName("D", i+1)
-		if err != nil {
-			continue
-		}
-		f.SetCellValue(sheetname, cellname, last)
-		cellname, err = excelize.JoinCellName("E", i+1)
-		if err != nil {
-			continue
-		}
-		f.SetCellValue(sheetname, cellname, title)
-		//fmt.Println(SplitName(row[1]))
-		fmt.Println(first)
-		fmt.Println(last)
-		fmt.Println(title)
-	}
-	f.Save()
-
-	return nil
-}
