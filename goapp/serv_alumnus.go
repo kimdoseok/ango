@@ -15,6 +15,10 @@ type (
 	}
 )
 
+var (
+	err error
+)
+
 func NewAlumnusService(r *AlumnusRepository) *AlumnusService {
 	return &AlumnusService{
 		repo: r,
@@ -37,7 +41,7 @@ func (s *AlumnusService) Get(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
-	rec, err := s.repo.Get(id)
+	rec, err := s.repo.Get(int32(id))
 	err = json.NewEncoder(w).Encode(rec)
 	if err != nil {
 		http.Error(w, "JSON Encoding error", http.StatusInternalServerError)
@@ -79,7 +83,7 @@ func (s *AlumnusService) Delete(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
-	rec, err := s.repo.Get(id)
+	rec, err := s.repo.Get(int32(id))
 	err = json.NewEncoder(w).Encode(rec)
 	if err != nil {
 		http.Error(w, "JSON Encoding error", http.StatusInternalServerError)

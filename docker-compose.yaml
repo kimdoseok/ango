@@ -1,5 +1,10 @@
 services:
-  
+  redisdb:
+    image: "redis:latest"
+    container_name: redis-service
+    ports:
+      - "6379:6379"
+
   postgresdb:
     image: postgres:alpine
     container_name: postgresdb 
@@ -28,9 +33,43 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${DB_PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${DB_PGADMIN_PASSWORD}
     ports:
-      - "8080:80" # Expose pgAdmin on port 8080 of the host
+      - "8080:8080" # Expose pgAdmin on port 8080 of the host
     depends_on:
       - postgresdb # Ensure PostgreSQL starts before pgAdmin
     volumes:
       - ./storage/pgadmin:/var/lib/pgadmin
 
+  goapp-service:
+    container_name: goapp-service
+    restart: always
+    env_file: 
+      - .env
+    depends_on:
+      - "redisdb"
+      - "postgresdb"  
+    ports:
+      - "81:81"
+    build:
+      context: ./goapp
+      dockerfile: Dockerfile
+      args:
+        buildno: 1
+    volumes:
+      - "./storage/log:/app/log"
+      #- "./storage/sqlite:/app/sqlite"
+
+  ngapp-service:
+    container_name: ngapp-service
+    restart: always
+    depends_on:
+      - "redisdb"
+      - "postgresdb"  
+      - "goapp-service"  
+    ports:
+      - "80:80"
+    env_file: .env
+    build:
+      context: ./ngapp
+      dockerfile: Dockerfile
+      args:
+        buildno: 1

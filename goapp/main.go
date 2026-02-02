@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -23,6 +24,9 @@ type Item struct {
 func NewDatabase(usedb string) (*gorm.DB, error) {
 	var db *gorm.DB
 	var err error
+	a := Alumnus{}
+	log.Printf("Alumnus Struct: %+v", a)
+
 	if usedb == "mysql" {
 		dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 			os.Getenv("DB_MYSQL_USER"),
@@ -68,28 +72,32 @@ func main() {
 		panic("Could not connect to the database: " + err.Error())
 	}
 
+	auth := NewAuthService(db)
+	submux.HandleFunc("GET /api/auth/login", http.HandlerFunc(auth.Login))
+	submux.HandleFunc("GET /api/auth/logout", http.HandlerFunc(auth.Logout))
+
 	repo_alumnus := NewAlumnusRepository(db)
 	serv_alumnus := NewAlumnusService(repo_alumnus)
-	submux.HandleFunc("GET /alumnus/count", http.HandlerFunc(serv_alumnus.Count))
-	submux.HandleFunc("GET /alumnus/", http.HandlerFunc(serv_alumnus.List))
-	submux.HandleFunc("GET /alumnus/{filter}", http.HandlerFunc(serv_alumnus.List))
-	submux.HandleFunc("GET /alumnus/count/{filter}", http.HandlerFunc(serv_alumnus.List))
-	submux.HandleFunc("GET /alumnus/get", http.HandlerFunc(serv_alumnus.List))
-	submux.HandleFunc("POST /alumnus/save", http.HandlerFunc(serv_alumnus.List))
-	submux.HandleFunc("GET /alumnus/het/{id}", http.HandlerFunc(serv_alumnus.List))
-	submux.HandleFunc("POST /alumnus/import", http.HandlerFunc(serv_alumnus.Import))
-	submux.HandleFunc("GET /alumnus/export", http.HandlerFunc(serv_alumnus.List))
+	submux.HandleFunc("GET /api/alumnus/count", http.HandlerFunc(serv_alumnus.Count))
+	submux.HandleFunc("GET /api/alumnus/", http.HandlerFunc(serv_alumnus.List))
+	submux.HandleFunc("GET /api/alumnus/{filter}", http.HandlerFunc(serv_alumnus.List))
+	submux.HandleFunc("GET /api/alumnus/count/{filter}", http.HandlerFunc(serv_alumnus.List))
+	submux.HandleFunc("GET /api/alumnus/get", http.HandlerFunc(serv_alumnus.List))
+	submux.HandleFunc("POST /api/alumnus/save", http.HandlerFunc(serv_alumnus.List))
+	submux.HandleFunc("GET /api/alumnus/het/{id}", http.HandlerFunc(serv_alumnus.List))
+	submux.HandleFunc("POST /api/alumnus/import", http.HandlerFunc(serv_alumnus.Import))
+	submux.HandleFunc("GET /api/alumnus/export", http.HandlerFunc(serv_alumnus.List))
 
 	repo_group := NewGroupRepository(db)
 	serv_group := NewGroupService(repo_group)
-	submux.HandleFunc("GET /group/count", http.HandlerFunc(serv_group.Count))
-	submux.HandleFunc("GET /group", http.HandlerFunc(serv_group.List))
-	submux.HandleFunc("GET /group/{filter}", http.HandlerFunc(serv_group.List))
-	submux.HandleFunc("GET /group/count/{filter}", http.HandlerFunc(serv_group.List))
-	submux.HandleFunc("GET /group/get", http.HandlerFunc(serv_group.List))
-	submux.HandleFunc("POST /group/save", http.HandlerFunc(serv_group.List))
-	submux.HandleFunc("GET /group/get/{id}", http.HandlerFunc(serv_group.List))
-	submux.HandleFunc("GET /group/delete/{id}", http.HandlerFunc(serv_group.List))
+	submux.HandleFunc("GET /api/group/count", http.HandlerFunc(serv_group.Count))
+	submux.HandleFunc("GET /api/group", http.HandlerFunc(serv_group.List))
+	submux.HandleFunc("GET /api/group/{filter}", http.HandlerFunc(serv_group.List))
+	submux.HandleFunc("GET /api/group/count/{filter}", http.HandlerFunc(serv_group.List))
+	submux.HandleFunc("GET /api/group/get", http.HandlerFunc(serv_group.List))
+	submux.HandleFunc("POST /api/group/save", http.HandlerFunc(serv_group.List))
+	submux.HandleFunc("GET /api/group/get/{id}", http.HandlerFunc(serv_group.List))
+	submux.HandleFunc("GET /api/group/delete/{id}", http.HandlerFunc(serv_group.List))
 
 	// Start the server
 	server := &http.Server{
