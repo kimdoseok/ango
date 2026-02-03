@@ -1,0 +1,9 @@
+table td, table th {
+  vertical-align: middle;
+}
+table th {
+  background-color: gray;
+}
+table tr:nth-child(even) {
+  background-color: #fafafa;
+}

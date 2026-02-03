@@ -12,43 +12,48 @@ var (
 )
 
 func Routes(mux *http.ServeMux) {
-	mux.Handle("/alumni", AlumnusMux(mux))
-}
-
-func AlumnusMux(mux *http.ServeMux) http.Handler {
 	db, err := NewDatabase(os.Getenv("DB_USED"))
 	if err != nil {
 		panic("Could not connect to the database: " + err.Error())
 	}
+
+	//mux.Handle("/alumnus", AlumnusMux(mux))
+	//mux.Handle("/group", GroupMux(mux))
+	AlumnusMux(mux, db)
+	GroupMux(mux, db)
+}
+
+func AlumnusMux(mux *http.ServeMux, db *gorm.DB) {
+	submux := http.NewServeMux()
+
 	repo := NewAlumnusRepository(db)
 	serv := NewAlumnusService(repo)
 
-	mux.HandleFunc("/count", http.HandlerFunc(serv.Count))
-	mux.HandleFunc("", http.HandlerFunc(serv.List))
-	mux.HandleFunc(":filter", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/count/:filter", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/get", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/save", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/get/:id", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/delete/:id", http.HandlerFunc(serv.List))
-	return http.StripPrefix("/alumni", mux)
+	submux.HandleFunc("GET /alumnus/count", http.HandlerFunc(serv.Count))
+	submux.HandleFunc("GET /alumnus/", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /alumnus/{filter}", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /alumnus/count/{filter}", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /alumnus/get", http.HandlerFunc(serv.List))
+	submux.HandleFunc("POST /alumnus/save", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /galumnus/het/{id}", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /alumnus/delete/{id}", http.HandlerFunc(serv.List))
+	mux.Handle("/alumnus", http.StripPrefix("/alumnus", submux))
+
 }
 
-func GroupMux(mux *http.ServeMux) http.Handler {
-	db, err := NewDatabase(os.Getenv("DB_USED"))
-	if err != nil {
-		panic("Could not connect to the database: " + err.Error())
-	}
+func GroupMux(mux *http.ServeMux, db *gorm.DB) {
+	submux := http.NewServeMux()
+
 	repo := NewGroupRepository(db)
 	serv := NewGroupService(repo)
 
-	mux.HandleFunc("/count", http.HandlerFunc(serv.Count))
-	mux.HandleFunc("", http.HandlerFunc(serv.List))
-	mux.HandleFunc(":filter", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/count/:filter", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/get", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/save", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/get/:id", http.HandlerFunc(serv.List))
-	mux.HandleFunc("/delete/:id", http.HandlerFunc(serv.List))
-	return http.StripPrefix("/alumni", mux)
+	submux.HandleFunc("GET /group/count", http.HandlerFunc(serv.Count))
+	submux.HandleFunc("GET /group", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /group/{filter}", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /group/count/{filter}", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /group/get", http.HandlerFunc(serv.List))
+	submux.HandleFunc("POST /group/save", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /group/get/{id}", http.HandlerFunc(serv.List))
+	submux.HandleFunc("GET /group/delete/{id}", http.HandlerFunc(serv.List))
+	mux.Handle("/group", http.StripPrefix("/group", submux))
 }

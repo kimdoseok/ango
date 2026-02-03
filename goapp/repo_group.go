@@ -7,12 +7,6 @@ import (
 )
 
 type (
-	Group struct {
-		ID     int        `gorm:"primary_key" json:"id"`
-		Alumni []*Alumnus `gorm:"many2many:alumni_groups;"`
-		Name   string     `gorm:"type:varchar(64); default:''; not null" json:"name"`
-		Memo   string     `gorm:"type:text;" json:"memo"`
-	}
 
 	GroupRepository struct {
 		Db *gorm.DB
@@ -40,11 +34,11 @@ func NewGroupRepository(db *gorm.DB) *GroupRepository {
 	}
 }
 
-func (r *GroupRepository) Get(ID int) (*Group, error) {
+func (r *GroupRepository) Get(ID int32) (*Group, error) {
 	var rec Group
 	r.Db.Model(&Group{}).Where("id = ?", ID).First(&rec)
 	//fmt.Println("Get Rec: =======>", code, rec)
-	if &rec == nil || ID != rec.ID {
+	if &rec == nil || ID == rec.ID {
 		return &Group{}, errors.New("Could not find the ID")
 	}
 	return &rec, nil
@@ -52,59 +46,52 @@ func (r *GroupRepository) Get(ID int) (*Group, error) {
 
 func (r *GroupRepository) List(fstrs []string, page int) ([]Group, error) {
 	var recs []Group
-	//likestr := ""
-	qstr, values := getConditionStr(fstrs)
-	s := make([]interface{}, len(values))
-	for i, v := range values {
-		s[i] = v
+	fstr := ""
+	if len(fstrs) > 0 {
+		fstr = fstrs[0]
 	}
 	GroupOffset = page * GroupLimit
-	r.Db.Model(&Group{}).Where(qstr, s...).Order("code").Limit(GroupLimit).Offset(GroupOffset).Find(&recs)
+	//r.Db.Model(&Group{}).Joins("left outer join alumni_groups on alumni_groups.group_id = groups.id").Where("groups.name like '%%%s%%' ", fstr).Order("name").Limit(GroupLimit).Offset(GroupOffset).Find(&recs)
+	r.Db.Model(&Group{}).Where("groups.name like '%%%s%%' ", fstr).Order("name").Limit(GroupLimit).Offset(GroupOffset).Find(&recs)
 	return recs, nil
 }
 
 func (r *GroupRepository) ListAll(fstrs []string) ([]Group, error) {
 	var recs []Group
-	//likestr := ""
-	qstr, values := getConditionStr(fstrs)
-	s := make([]interface{}, len(values))
-	for i, v := range values {
-		s[i] = v
-	}
-	r.Db.Model(&Group{}).Where(qstr, s...).Order("code").Find(&recs)
+
+	r.Db.Model(&Group{}).Order("name").Limit(GroupLimit).Offset(GroupOffset).Find(&recs)
 	return recs, nil
 }
 
 func (r *GroupRepository) Count(fstrs []string) int64 {
 	var num int64
 	//likestr := ""
-	qstr, values := getConditionStr(fstrs)
-	s := make([]interface{}, len(values))
-	for i, v := range values {
-		s[i] = v
-	}
 
-	r.Db.Model(&Group{}).Where(qstr, s...).Count(&num)
+	fstr := ""
+	if len(fstrs) > 0 {
+		fstr = fstrs[0]
+	}
+	r.Db.Model(&Group{}).Where("groups.name like '%%%s%%' ", fstr).Count(&num)
 	return num
 }
 
 func (r *GroupRepository) Save(param *Group) (*Group, error) {
 	var rec Group
 	tx := r.Db.Begin()
-	tx.Model(&Group{}).Where("code = ?", param.ID).Find(&rec)
+	tx.Model(&Group{}).Where("id = ?", param.ID).Find(&rec)
 	if rec.ID > 0 { // updatem
-		tx.Model(&Group{}).Where("code = ?", rec.ID).Updates(param)
+		tx.Model(&Group{}).Where("id = ?", rec.ID).Updates(param)
 	} else { // create
 		tx.Model(&Group{}).Create(param)
 	}
-	tx.Model(&Group{}).Where("code = ?", param.ID).First(&rec)
+	tx.Model(&Group{}).Where("id = ?", param.ID).First(&rec)
 	tx.Commit()
 	return &rec, nil
 }
 
-func (r *GroupRepository) Delete(ID string) error {
+func (r *GroupRepository) Delete(ID int32) error {
 	tx := r.Db.Begin()
-	tx.Where("code = ?", ID).Delete(&Group{})
+	tx.Where("id = ?", ID).Delete(&Group{})
 	tx.Commit()
 	return nil
 }

@@ -35,7 +35,7 @@ func (s *GroupService) Get(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
-	rec, err := s.repo.Get(id)
+	rec, err := s.repo.Get(int32(id))
 	err = json.NewEncoder(w).Encode(rec)
 	if err != nil {
 		http.Error(w, "JSON Encoding error", http.StatusInternalServerError)
@@ -43,8 +43,7 @@ func (s *GroupService) Get(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *GroupService) xList(w http.ResponseWriter, r *http.Request) {
-	s.repo.Db.AutoMigrate(Group{})
+func (s *GroupService) XList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	recs, err := s.repo.List([]string{""}, 0)
 	err = json.NewEncoder(w).Encode(recs)
@@ -79,7 +78,7 @@ func (s *GroupService) Delete(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
-	rec, err := s.repo.Get(id)
+	rec, err := s.repo.Get(int32(id))
 	err = json.NewEncoder(w).Encode(rec)
 	if err != nil {
 		http.Error(w, "JSON Encoding error", http.StatusInternalServerError)
