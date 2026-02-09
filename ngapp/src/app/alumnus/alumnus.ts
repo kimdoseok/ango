@@ -1,4 +1,5 @@
 import { Component, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { Header } from '../header/header';
 import { Footer } from '../footer/footer';
@@ -6,7 +7,7 @@ import { Footer } from '../footer/footer';
 @Component({
   selector: 'app-alumnus',
   standalone: true,
-  imports: [NgbPaginationModule, Header, Footer],
+  imports: [NgbPaginationModule, CommonModule, Header, Footer],
   templateUrl: './alumnus.html',
   styleUrl: './alumnus.css',
 })
