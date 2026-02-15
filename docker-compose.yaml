@@ -64,10 +64,6 @@ services:
       - "mysqldb"  
     ports:
       - "81:81"
-      - "redisdb"
-      - "postgresdb"  
-    ports:
-      - "81:81"
     build:
       context: ./goapp
       dockerfile: Dockerfile
@@ -81,12 +77,8 @@ services:
     container_name: ngapp-service
     restart: always
     depends_on:
-      - "mysqldb"  
-      - "redisdb"
-      - "postgresdb"  
       - "goapp-service"  
     ports:
-      - "80:80"
       - "80:80"
     env_file: .env
     build:

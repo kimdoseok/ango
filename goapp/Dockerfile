@@ -1,4 +1,4 @@
-FROM golang:alpine as builder
+FROM golang:alpine 
 RUN apk update
 RUN apk add --no-cache bash git gcc libc-dev sqlite
 
